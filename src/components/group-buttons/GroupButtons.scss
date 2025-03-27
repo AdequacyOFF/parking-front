@@ -1,0 +1,14 @@
+$block: '.group-btns';
+
+#{$block} {
+    width: 100%;
+    display: flex;
+
+    & * {
+        margin-right: 12px;
+    }
+
+    & *:last-child {
+        margin-right: 0;
+    }
+}

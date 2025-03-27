@@ -1,0 +1,20 @@
+.primary-button.g-button {
+  background: #CE0014;
+
+  color: #ffffff;
+  border-radius: 12px;
+
+  &.g-button_disabled {
+    background: #0000000d;
+    color: #0000004d;
+  }
+
+  &.g-button_loading {
+    background: radial-gradient(274.3% 4593.32% at -41.98% -142.31%, #C5FF3F 0%, #2AD162 100%);
+  }
+}
+
+.primary-button:focus,
+.primary-button:hover {
+  color: #ffffff;
+}

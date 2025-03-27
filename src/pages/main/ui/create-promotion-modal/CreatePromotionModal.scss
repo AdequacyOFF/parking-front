@@ -1,0 +1,15 @@
+$block: '.create-promotion-modal';
+
+#{$block} {
+
+    & .input-label-wrapper {
+        margin-bottom: 10px;
+    }
+}
+
+.action-btns {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

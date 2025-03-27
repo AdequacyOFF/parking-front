@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+a {
+  text-decoration: none;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.toaster {
+  &.g-toaster {
+    inset-block-end: unset;
+    inset-block-start: 20px;
+    inset-inline-end: 10px;
+  }
+
+  & .g-toast__title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 20px;
+    color: #000000D9;
+  }
+
+  & .g-toast__content {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 18px;
+    color: #000000B2;
+  }
+
+  & .success-green svg path {
+    fill: #30AA6E;
+  }
+
+  & .success-red svg path {
+    fill: #DC1847;
+  }
+}
+
+.fs48-primary-bold {
+  color: #000000D9;
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 52px;
+  letter-spacing: -0.02em;
+}
+
+.fs32-primary-bold {
+  color: #000000D9;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+
+.fs28-primary-bold {
+  color: #000000D9;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 36px;
+  letter-spacing: -0.02em;
+}
+
+.fs24-primary-bold {
+  color: #000000D9;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 28px;
+  letter-spacing: -0.02em;
+}
+
+.fs20-primary-bold {
+  color: #000000D9;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.5px;
+}
+
+.fs17-primary-bold {
+  color: #000000D9;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.3px;
+}
+
+.fs15-secondary-thin {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #00000080;
+}
+
+.fs15-primary-bold {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 20px;
+  color: #000000D9;
+}
+
+.fs13-secondary-thin {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  color: #00000080;
+}
