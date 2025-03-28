@@ -73,6 +73,25 @@ $block: '.auth-page';
   &__submit-btn:hover {
     color: #ffffff;
   }
+
+  &__input {
+    .g-text-input__control {
+      &::placeholder {
+        color: #a0a0a0 !important; /* Серый цвет */
+        opacity: 1 !important; /* Для Firefox */
+      }
+      
+      /* Для разных браузеров */
+      &::-webkit-input-placeholder { color: #a0a0a0 !important; }
+      &::-moz-placeholder { 
+        color: #a0a0a0 !important;
+        opacity: 1 !important;
+      }
+      &:-ms-input-placeholder { color: #a0a0a0 !important; }
+      &:-moz-placeholder { color: #a0a0a0 !important; }
+    }
+  }
+  
 }
 
 
