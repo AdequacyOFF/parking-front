@@ -74,7 +74,7 @@ export const AuthPage: React.FC = () => {
           {/* <Box className={b('logo-wrapper')}>
             <img src={logo} alt='logo' />
           </Box> */}
-          <span className={b('title')}>Авторизация</span>
+          <span className={b('title')}>AВТОРИЗАЦИЯ</span>
         </Stack>
 
         <Stack spacing={2}>

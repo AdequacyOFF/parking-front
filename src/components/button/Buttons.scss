@@ -1,8 +1,10 @@
 .primary-button.g-button {
-  background: #CE0014;
+  background: #ce001500;
 
   color: #ffffff;
   border-radius: 12px;
+  border: 2px solid rgb(255, 255, 255);
+  
 
   &.g-button_disabled {
     background: #0000000d;
@@ -17,4 +19,6 @@
 .primary-button:focus,
 .primary-button:hover {
   color: #ffffff;
+  text-shadow: 0 0 17px rgba(255, 255, 0, 0.67);
+    box-shadow: 0 0 17px rgba(255, 255, 0, 0.528);
 }

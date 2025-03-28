@@ -6,17 +6,18 @@ $block: '.auth-page';
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: #f2f2f2;
+  background-color: #232323;
 
   &__form {
     width: 464px;
     min-height: 300px;
-    background-color: #ffffff;
+    background-color: #232323;
     border-radius: 16px;
     padding: 32px;
     display: flex;
     flex-direction: column;
-    align-items: left;
+    align-items: center; /* Добавлено для горизонтального центрирования */
+    justify-content: center;
   }
 
   &__logo-wrapper {
@@ -32,14 +33,16 @@ $block: '.auth-page';
   }
 
   &__title {
-    display: inline-block;
+    display: block;
     height: 100%;
-    color: #000000;
-    font-size: 32px;
-    font-weight: 600;
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 700;
     line-height: 40px;
     letter-spacing: -0.025em;
     margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 0 0 17px rgba(255, 255, 0, 0.58);
   }
 
   &__input.g-text-input_size_xl .g-text-input__additional-content_placement_start {
@@ -47,13 +50,13 @@ $block: '.auth-page';
     padding-right: 4px;
   
     & svg path {
-      fill: #00000080;
+      fill: #ffffffc3;
     }
   }
 
   &__input.g-text-input_size_xl .g-text-input__additional-content_placement_end {
     & svg path {
-      fill: #00000080;
+      fill: #ffffffc3;
     }
   }
 
