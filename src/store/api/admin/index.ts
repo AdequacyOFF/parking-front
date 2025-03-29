@@ -4,10 +4,12 @@ import {
   CreatePromotionPostParams,
   PromotionsGetParams,
   UpdatePromotionPostParams,
+  RegisterUserParams,
 } from './types/request';
 import {
   GetPromotionByIdResponse,
   GetPromotionsResponse,
+  RegisterUserResponse,
 } from './types/response';
 
 // Типы для запросов и ответов, связанных с топливом
@@ -133,7 +135,18 @@ const adminApi = rootApi.injectEndpoints({
       },
       invalidatesTags: ['FuelVolume'],
     }),
+    registerUser: build.mutation<RegisterUserResponse, RegisterUserParams>({
+      query: (params) => ({
+        method: 'POST',
+        url: '/api/admin/userRegister',
+        body: params,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
   }),
+  
   overrideExisting: false,
 });
 
@@ -145,4 +158,5 @@ export const {
   useCreatePromotionMutation,
   useLazyGetFuelVolumeQuery,
   useUpdateFuelVolumeMutation,
+  useRegisterUserMutation,
 } = adminApi;

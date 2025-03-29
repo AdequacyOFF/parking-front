@@ -11,19 +11,30 @@ import { PrimaryButton } from "../../components/button";
 import { InputLabel } from "../../components/input-label";
 import { Stack } from "@mui/material";
 
-import { useLoginMutation } from "../../store/api/auth";
+import { useAdminLoginMutation,  useUserLoginMutation} from "../../store/api/auth";
 
 const b = block("auth-page");
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const [login, { isLoading }] = useLoginMutation();
+
+  const [toAdminLogin, {
+    data: loginData, 
+    ...loginRequestInfo
+  }] = useAdminLoginMutation();
+
+  const [toUserLogin, {
+    data: login, 
+    ...requestInfo
+  }] = useUserLoginMutation();
+
 
   const [showPassword, setShowPassword] = React.useState(false);
-  const [loginInput, setLoginInput] = React.useState("");
+  const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
   const [isPhone, setIsPhone] = React.useState(false);
+  const [isLoginButtonClicked, setIsLoginButtonClicked] = React.useState(false);
 
 
   const formatPhone = (value: string) => {
@@ -42,14 +53,14 @@ export const AuthPage: React.FC = () => {
     const isPhoneInput = /^[\d+]/.test(value);
     
     setIsPhone(isPhoneInput);
-    setLoginInput(isPhoneInput ? formatPhone(value) : value);
+    setUserName(isPhoneInput ? formatPhone(value) : value);
     setError("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!loginInput.trim()) {
+    if (!username.trim()) {
       setError("Введите логин или телефон");
       return;
     }
@@ -59,17 +70,17 @@ export const AuthPage: React.FC = () => {
       return;
     }
 
-    if (isPhone && !/^\+?\d{10,15}$/.test(loginInput.replace(/\D/g, ''))) {
+    if (isPhone && !/^\+?\d{10,15}$/.test(username.replace(/\D/g, ''))) {
       setError("Введите корректный номер телефона");
       return;
     }
 
     try {
 
-      const loginValue = isPhone ? loginInput.replace(/\D/g, '') : loginInput;
+      const loginValue = isPhone ? username.replace(/\D/g, '') : username;
       
-      await login({
-        login: loginValue,
+      await toAdminLogin({
+        username: loginValue,
         password
       }).unwrap();
       
@@ -79,6 +90,47 @@ export const AuthPage: React.FC = () => {
       setError("Неверные учетные данные");
     }
   };
+
+  const handleOnClickLoginButton = () => {
+    if (username && password) {
+      toAdminLogin({ username, password });
+      setIsLoginButtonClicked(true);
+      setError("");
+      // localStorage.setItem('accessToken', "1");
+      // navigate(NavigationPath.PromotionsPage);
+    } else {
+      setError("Заполните логин и пароль")
+    }
+  };
+
+
+  React.useEffect(() => {
+    if (loginRequestInfo.isSuccess) {
+      localStorage.setItem('accessToken', loginData?.result.token!);
+      localStorage.setItem('refreshToken', loginData?.result.refreshToken!);
+      navigate(NavigationPath.AdminPage);
+      setIsLoginButtonClicked(false);
+    }
+  }, [loginRequestInfo.isSuccess, loginData?.result.token, loginData?.result.refreshToken, navigate]);
+
+  React.useEffect(() => {
+    if (loginRequestInfo.isError) {
+      toUserLogin({ username, password });
+      if (requestInfo.isSuccess) {
+        localStorage.setItem('accessToken', login?.result.token!);
+        localStorage.setItem('refreshToken', login?.result.refreshToken!);
+        navigate(NavigationPath.UserAccount);
+        setIsLoginButtonClicked(false);
+      }
+      else{
+        setIsLoginButtonClicked(false);
+      if (loginRequestInfo.error && 'error' in loginRequestInfo.error){
+        setError(loginRequestInfo.error.error.message)
+      }
+    }
+      }
+    }, [loginRequestInfo.isError, loginRequestInfo.error,loginRequestInfo.isSuccess, loginData?.result.token, loginData?.result.refreshToken, navigate]);
+
 
   return (
     <div className={b()}>
@@ -91,7 +143,7 @@ export const AuthPage: React.FC = () => {
           <InputLabel labelText={isPhone ? "Номер телефона" : "Логин"}>
             <TextInput
               style={{ color: "#ffffff" }}
-              value={loginInput}
+              value={username}
               onChange={handleLoginChange}
               type={isPhone ? "tel" : "text"}
               placeholder={isPhone ? "+7 (999) 123-45-67" : "Ваш логин"}
@@ -137,8 +189,9 @@ export const AuthPage: React.FC = () => {
         <PrimaryButton
           type="submit"
           size="xl"
-          loading={isLoading}
-          disabled={!loginInput || !password}
+          loading={isLoginButtonClicked}
+          onClick={handleOnClickLoginButton}
+          disabled={!username || !password}
           style={{ marginTop: 20 }}
         >
           ВОЙТИ

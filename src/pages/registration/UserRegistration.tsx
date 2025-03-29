@@ -1,91 +1,75 @@
 import React from 'react';
 import block from 'bem-cn-lite';
 import { Button, TextInput, useToaster, Spin } from '@gravity-ui/uikit';
-import { useLazyGetFuelVolumeQuery, useUpdateFuelVolumeMutation } from '../../store/api/admin';
 import { Layout } from '../../components/layout';
 import { Box, Stack } from '@mui/material';
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { useRegisterUserMutation } from '../../store/api/admin';
 
-import './UserRegistration.scss'; // Подключаем стили
+import './UserRegistration.scss';
 
-const b = block('fuel-page'); // Создаем блок для стилей
+const b = block('fuel-page');
+
 
 export const UserRegistrationPage: React.FC = () => {
   const { add } = useToaster();
+  const [registerUser, { isLoading }] = useRegisterUserMutation();
 
-  // Хук для получения текущего объема топлива
-  const [getFuelVolume, { data, isFetching: isFetchingVolume }] = useLazyGetFuelVolumeQuery();
+  const [formData, setFormData] = React.useState({
+    lastName: '',
+    firstName: '',
+    patronymic: '',
+    phoneNumber: ''
+  });
 
-  // Хук для обновления объема топлива
-  const [updateFuelVolume, { isLoading: isUpdating }] = useUpdateFuelVolumeMutation();
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
-  // Состояние для хранения нового значения объема
-  const [volume, setVolume] = React.useState<number | null>(null);
-
-  // Загружаем текущее значение при монтировании компонента
-  React.useEffect(() => {
-    getFuelVolume();
-  }, [getFuelVolume]);
-
-  // Обновляем состояние volume при получении данных
-  React.useEffect(() => {
-    if (data?.result?.minFuelVolume) {
-      setVolume(data.result.minFuelVolume);
-    }
-  }, [data]);
-
-  // Обработчик для обновления объема топлива
-  const handleUpdateFuelVolume = async () => {
-    if (volume === null || isNaN(volume)) {
+  const handleSubmit = async () => {
+    if (!formData.lastName || !formData.firstName || !formData.phoneNumber) {
       add({
-        name: 'update-fuel-volume-error',
+        name: 'registration-error',
         title: 'Ошибка',
-        content: 'Введите корректное значение объема топлива',
-        autoHiding: 3000,
-      });
-      return;
-    }
-
-    // Приводим volume к целому числу
-    const intVolume = Math.floor(volume);
-
-    // Проверяем, что объем является положительным числом
-    if (intVolume <= 0) {
-      add({
-        name: 'update-fuel-volume-error',
-        title: 'Ошибка',
-        content: 'Объем топлива должен быть положительным числом',
+        content: 'Заполните все обязательные поля',
         autoHiding: 3000,
       });
       return;
     }
 
     try {
-      // Отправляем запрос на сервер
-      const response = await updateFuelVolume({ volume: intVolume }).unwrap();
-      console.log('Ответ сервера:', response);
+      // Вызываем мутацию и получаем ответ
+      const result = await registerUser({
+        phoneNumber: formData.phoneNumber,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        patronymic: formData.patronymic
+      }).unwrap();
 
+      // Правильно типизированный доступ к данным ответа
       add({
-        name: 'update-fuel-volume-success',
+        name: 'registration-success',
         title: 'Успешно',
-        content: 'Объем топлива успешно обновлен',
+        content: `Пользователь ${result.result.userId} зарегистрирован`,
         autoHiding: 3000,
       });
+
+      // Сброс формы
+      setFormData({
+        lastName: '',
+        firstName: '',
+        patronymic: '',
+        phoneNumber: ''
+      });
+
     } catch (error) {
-      console.error('Ошибка при обновлении объема топлива:', error);
-
-      // Уточняем тип ошибки
-      const fetchError = error as FetchBaseQueryError;
-
-      // Выводим детали ошибки, если они есть
-      const errorMessage =
-        (fetchError.data as { detail?: string })?.detail ||
-        'Не удалось обновить объем топлива';
-
+      const errorContent = (error as { data?: { message?: string } })?.data?.message 
+        || 'Ошибка при регистрации';
+      
       add({
-        name: 'update-fuel-volume-error',
+        name: 'registration-error',
         title: 'Ошибка',
-        content: errorMessage,
+        content: errorContent,
         autoHiding: 3000,
       });
     }
@@ -96,35 +80,61 @@ export const UserRegistrationPage: React.FC = () => {
       <div className={b()}>
         <div className={b('container')}>
           <div className={b('wrapper')}>
-            <Stack spacing={2} direction="row" alignItems="center">
+            <Stack spacing={2} direction="column">
               <TextInput
-                type="number"
-                value={volume?.toString() || ''}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value);
-                  setVolume(isNaN(value) ? null : value);
-                }}
-                disabled={isFetchingVolume || isUpdating}
-                placeholder="Введите объем топлива"
-              />
-              <Button
-                view="outlined-danger"
+                name="lastName"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Фамилия"
                 size="l"
-                onClick={handleUpdateFuelVolume}
-                loading={isUpdating}
-                disabled={isFetchingVolume || isUpdating}
+                
+              />
+
+              <TextInput
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Имя"
+                size="l"
+                
+              />
+
+              <TextInput
+                name="patronymic"
+                value={formData.patronymic}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Отчество"
+                size="l"
+              />
+
+              <TextInput
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                placeholder="Телефон"
+                size="l"
+                type="tel"
+                
+              />
+
+              <Button
+                view="action"
+                size="l"
+                onClick={handleSubmit}
+                loading={isLoading}
+                disabled={isLoading}
               >
-                Обновить
+                Зарегистрировать
               </Button>
             </Stack>
 
-            {isFetchingVolume ? (
+            {isLoading && (
               <Box className={b('loading')}>
-                <Spin />
-              </Box>
-            ) : (
-              <Box className={b('current-value')}>
-                Текущее минимальное значение топлива: {data?.result?.minFuelVolume}
+                <Spin size="xl" />
               </Box>
             )}
           </div>

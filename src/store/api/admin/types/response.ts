@@ -18,3 +18,11 @@ export interface UpdateFuelVolumeResponse {
   message: string;
   result: {};
 }
+
+export interface RegisterUserResponse {
+  errorCode: number;
+  message: string;
+  result: {
+    userId: string;
+  };
+}

@@ -28,3 +28,10 @@ export interface GetFuelVolumeResponse {
 export interface UpdateFuelVolumeParams {
   volume: number;
 }
+
+export interface RegisterUserParams {
+  phoneNumber: string;
+  firstName: string;
+  lastName: string;
+  patronymic: string;
+}

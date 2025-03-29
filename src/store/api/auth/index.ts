@@ -5,9 +5,16 @@ import { PostLoginResponse } from './types/response';
 // Экспортируем authApi и useLoginMutation
 export const authApi = rootApi.injectEndpoints({
   endpoints: (build) => ({
-    login: build.mutation<PostLoginResponse, LoginPostParams>({
+    adminLogin: build.mutation<PostLoginResponse, LoginPostParams>({
       query: (credentials: LoginPostParams) => ({
-        url: '/auth/login',
+        url: '/api/admin/login',
+        method: 'POST',
+        data: credentials
+      }),
+    }),
+    userLogin: build.mutation<PostLoginResponse, LoginPostParams>({
+      query: (credentials: LoginPostParams) => ({
+        url: '/api/admin/login',
         method: 'POST',
         data: credentials
       }),
@@ -16,4 +23,6 @@ export const authApi = rootApi.injectEndpoints({
   overrideExisting: false,
 });
 
-export const { useLoginMutation } = authApi;
+
+export const { useAdminLoginMutation,
+               useUserLoginMutation } = authApi;
