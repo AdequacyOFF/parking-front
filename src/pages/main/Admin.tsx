@@ -7,8 +7,9 @@ import {
   Table,
   useToaster,
   withTableActions,
+  TextInput,
 } from "@gravity-ui/uikit";
-
+import { PrimaryButton } from "../../components/button";
 import "./Admin.scss";
 import { Layout } from "../../components/layout";
 
@@ -262,8 +263,67 @@ export const AdminPage: React.FC = () => {
     }
   }, [createPromotionsRequestInfo.isSuccess, closeCreatePromotionModal]);
 
-  const totalItems = data?.result.total || 0; 
-  const promotions = data?.result.promotions || []; 
+  const totalItems = data?.result.total || 0;
+  const promotions = data?.result.promotions || [];
+
+  const [parkingSpacesCount, setParkingSpacesCount] = React.useState<string>("");
+  const [isInitialSetupDone, setIsInitialSetupDone] = React.useState<boolean>(false);
+
+  const handleCreateParkingSpaces = () => {
+    const count = parseInt(parkingSpacesCount);
+    if (count > 0) {
+      // Здесь должна быть логика создания парковочных мест
+      setIsInitialSetupDone(true);
+      add({
+        name: "parking-spaces-created",
+        title: `Создано ${count} парковочных мест`,
+        autoHiding: 3000,
+      });
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+$/.test(value)) {
+      setParkingSpacesCount(value);
+    }
+  };
+
+  if (!isInitialSetupDone && (!data || data.result.total === 0)) {
+    return (
+      <Layout>
+        <div className={b()}>
+          <div className={b("initial-setup")}>
+            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+              <span className={b("title")}>СОЗДАЙТЕ ПАРКОВКУ</span>
+            </Stack>
+            <div className={b("setup-form")}>
+              <TextInput
+                type="text"
+                label=" "
+                value={parkingSpacesCount}
+                onChange={handleInputChange}
+                size = "xl"
+                className={b("input")}
+                controlProps={{ style: { color: "#ffffff" } }}
+                style={{ color: "#ffffff" }}
+              />
+              <PrimaryButton
+                view="action"
+                size="xl"
+                onClick={handleCreateParkingSpaces}
+                disabled={!parkingSpacesCount || parseInt(parkingSpacesCount) <= 0}
+                className={b("setup-button")}
+                style={{ marginTop: 20, color: "#ffffff" }}
+              >
+                СОЗДАТЬ
+              </PrimaryButton>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -277,7 +337,7 @@ export const AdminPage: React.FC = () => {
             ) : null}
 
             <PromotionTable
-              data={promotions} 
+              data={promotions}
               columns={columns}
               // @ts-ignore
               getRowActions={getRowActions}
@@ -307,9 +367,9 @@ export const AdminPage: React.FC = () => {
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25]}
                 colSpan={3}
-                count={totalItems} 
+                count={totalItems}
                 rowsPerPage={rowsPerPage}
-                page={page - 1} 
+                page={page - 1}
                 onPageChange={handleChangePage}
                 onRowsPerPageChange={handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
@@ -317,7 +377,7 @@ export const AdminPage: React.FC = () => {
                   <p className="fs15-secondary-thin">Строк на странице:</p>
                 }
                 labelDisplayedRows={({ from, to, count }) =>
-                  `${from}-${to} из ${count}` 
+                  `${from}-${to} из ${count}`
                 }
                 sx={{
                   "& .MuiToolbar-root": {
@@ -325,6 +385,7 @@ export const AdminPage: React.FC = () => {
                   },
                   "& *": {
                     fontFamily: "inherit",
+                    color: "white",
                   },
                 }}
               />

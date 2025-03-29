@@ -1,19 +1,53 @@
 $block: '.main-page';
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 #{$block} {
   display: flex;
   flex-direction: column;
   width: 100%;
   // height: 100%;
   height: calc(100% - 66px);
-  background-color: #f2f2f2;
+  background-color: #232323;
+
+  &__input{
+    color: #ffffff;
+    border-radius: 12px;
+    border-color: white;
+    width: 232px;
+  }
+
+  &__input.g-text-input_size_xl .g-text-input__additional-content_placement_start {
+    padding-left: 12px;
+    padding-right: 4px;
+  }
+
+
+  &__input {
+    .g-text-input__control {
+      &::placeholder {
+        color: #a0a0a0 !important; /* Серый цвет */
+        opacity: 1 !important; /* Для Firefox */
+      }
+      
+      /* Для разных браузеров */
+      &::-webkit-input-placeholder { color: #a0a0a0 !important; }
+      &::-moz-placeholder { 
+        color: #a0a0a0 !important;
+        opacity: 1 !important;
+      }
+      &:-ms-input-placeholder { color: #a0a0a0 !important; }
+      &:-moz-placeholder { color: #a0a0a0 !important; }
+    }
+  }
+  &__setup-button{
+    margin-left: 1vw;
+  }
 
   &__acts-nav {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #232323;
     border-radius: 12px;
     padding: 22px 32px;
     margin-bottom: 4px;
@@ -43,7 +77,7 @@ $block: '.main-page';
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #232323;
     padding: 50px 100px;
     overflow: auto;
   }
@@ -51,7 +85,8 @@ $block: '.main-page';
   &__table-wrapper {
     width: 100%;
     height: 100%;
-    box-shadow: 0px 8px 20px 0px #10182826;
+    color:white;
+    box-shadow: 0px 8px 20px 0px rgba(255, 255, 0, 0.28);
     border-radius: 12px;
     position: relative;
     display: flex;
@@ -83,7 +118,7 @@ $block: '.main-page';
   &__acts-empty {
     width: 100%;
     height: 100%;
-    border: 1px solid #0000001a;
+    border: 0,5px solid #ffffff1a;
     border-radius: 16px;
     background: url(../../assets/matrix.png);
     background-position: center;
@@ -100,9 +135,24 @@ $block: '.main-page';
     font-weight: 600;
     line-height: 24px;
     letter-spacing: -0.3px;
-    color: #000000d9;
+    color: #ffffffd9;
     margin-top: 20px;
     margin-bottom: 10px;
+  }
+
+  &__title {
+    display: block;
+    height: 100%;
+    color: #ffffff;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 40px;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 0 0 17px rgba(255, 255, 0, 0.58);
+    padding-left: 39vw;
+    padding-top: 200px;
   }
 
   &__acts-empty-desc {

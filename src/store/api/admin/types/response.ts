@@ -23,6 +23,12 @@ export interface RegisterUserResponse {
   errorCode: number;
   message: string;
   result: {
-    userId: string;
+    id: string;
+    phoneNumber: string;
+    status: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    patronymic: string;
   };
 }

@@ -135,11 +135,12 @@ const adminApi = rootApi.injectEndpoints({
       },
       invalidatesTags: ['FuelVolume'],
     }),
+    
     registerUser: build.mutation<RegisterUserResponse, RegisterUserParams>({
-      query: (params) => ({
+      query: (account) => ({
         method: 'POST',
         url: '/api/admin/userRegister',
-        body: params,
+        body: account,
         headers: {
           'Content-Type': 'application/json',
         },

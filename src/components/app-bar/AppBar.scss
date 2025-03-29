@@ -1,82 +1,113 @@
-$block: '.app-bar';
-
+$block: ".app-bar";
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 #{$block} {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background: rgb(35, 35, 35);
+  padding: 16px 32px 0;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  margin-bottom: 4px;
+  min-height: 120px;
+  position: relative;
+
+  &__initial-setup {
+    max-width: 232px;
+    margin: 50px auto;
+    padding: 30px;
+    box-sizing: border-box;
+    border: 2px solid rgb(33, 33, 33);
+    border-radius: 22px;
+    box-shadow:
+      inset 0px 4px 4px 0px rgba(0, 0, 0, 0.25),
+      0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    background: rgb(49, 48, 48);
+    border-radius: 12px;
+    text-align: center;
+
+    h2 {
+      color: white;
+      margin-bottom: 30px;
+    }
+  }
+
+  &__setup-form {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 20px;
+  }
+
+  &__title {
+    color: rgb(255, 255, 255);
+    font-family: Roboto;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 48px;
+    letter-spacing: 0px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  &__nav-container {
+    display: flex;
+    justify-content: center;
     width: 100%;
-    background: rgb(35, 35, 35);
-    padding: 16px 32px 0;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-    margin-bottom: 4px;
-    min-height: 120px;
+    margin-bottom: 12px;
+  }
+
+  &__tabs {
+    display: inline-flex;
+    font-family: Roboto;
+  }
+
+  &__user-setting {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    top: 16px;
+    border-color: rgb(255, 255, 255);
+  }
+
+  & .g-tabs {
+    background: transparent;
+  }
+
+  & .g-tabs__item {
+    font-family: Roboto;
+    color: rgb(255, 255, 255) !important;
+    opacity: 0.7;
+    padding: 0 24px 12px;
     position: relative;
-
-    &__title {
-        color: rgb(255, 255, 255);
-        font-family: Roboto;
-        font-size: 48px;
-        font-weight: 900;
-        line-height: 56px;
-        letter-spacing: 0px;
-        text-align: center;
-        margin-bottom: 16px;
+    transition: all 0.3s ease;
+    & .g-tabs__item-title {
+      color: rgba(255, 255, 255) !important;
+      font-size: 18px;
+      font-weight: 500;
     }
+  }
 
-    &__nav-container {
-        display: flex;
-        justify-content: center;
-        width: 100%;
-        margin-bottom: 12px;
+  & .g-tabs__item_active {
+    opacity: 1 !important;
+    border-bottom: 2px solid white !important;
+    & .g-tabs__item-title {
+      color: rgb(255, 255, 255) !important;
+      font-family: Roboto;
     }
+  }
 
-    &__tabs {
-        display: inline-flex;
+  & .g-tabs__item:hover {
+    opacity: 0.9;
+  }
+
+  & .g-button {
+    color: white;
+    border-color: white;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      font-family: Roboto;
     }
-
-    &__user-setting {
-        position: absolute;
-        right: 12px;
-        bottom: 12px;
-        top: 16px;
-        border-color: rgb(255, 255, 255);
-    }
-
-    & .g-tabs {
-        background: transparent;
-    }
-
-    & .g-tabs__item {
-        color: rgb(255, 255, 255) !important;
-        opacity: 0.7;
-        padding: 0 24px 12px;
-        position: relative;
-        transition: all 0.3s ease;
-        & .g-tabs__item-title{
-            color: rgba(255, 255, 255) !important;
-        }
-    }
-
-    & .g-tabs__item_active {
-        opacity: 1 !important;
-        border-bottom: 2px solid white !important;
-        & .g-tabs__item-title{
-            color: rgb(255, 255, 255) !important;
-            
-        }
-    }
-
-    & .g-tabs__item:hover {
-        opacity: 0.9;
-    }
-
-    & .g-button {
-        color: white;
-        border-color: white;
-
-        &:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-    }
+  }
 }

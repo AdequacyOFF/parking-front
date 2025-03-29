@@ -50,7 +50,7 @@ export const UserRegistrationPage: React.FC = () => {
       add({
         name: 'registration-success',
         title: 'Успешно',
-        content: `Пользователь ${result.result.userId} зарегистрирован`,
+        content: `Пользователь ${result.result.firstName} зарегистрирован`,
         autoHiding: 3000,
       });
 

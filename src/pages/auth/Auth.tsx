@@ -42,7 +42,7 @@ export const AuthPage: React.FC = () => {
     let formatted = numbers;
     
     if (numbers.length > 1) {
-      formatted = `+7 (${numbers.substring(1, 4)}) ${numbers.substring(4, 7)}-${numbers.substring(7, 9)}-${numbers.substring(9, 11)}`;
+      formatted = `+7${numbers.substring(1,11)}`;
     }
     
     return formatted.trim();
