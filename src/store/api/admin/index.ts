@@ -137,10 +137,15 @@ const adminApi = rootApi.injectEndpoints({
     }),
     
     registerUser: build.mutation<RegisterUserResponse, RegisterUserParams>({
-      query: (account) => ({
+      query: (params) => ({
         method: 'POST',
         url: '/api/admin/userRegister',
-        body: account,
+        data: {
+          phoneNumber: params.phoneNumber,
+          firstName: params.firstName,
+          lastName: params.lastName,
+          patronymic: params.patronymic,
+        },
         headers: {
           'Content-Type': 'application/json',
         },
