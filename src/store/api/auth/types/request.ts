@@ -1,4 +1,4 @@
 export interface LoginPostParams {
-  username: string;
+  login: string; 
   password: string;
 }

@@ -6,11 +6,11 @@ import { Layout } from '../../components/layout';
 import { Box, Stack } from '@mui/material';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-import './Fuel.scss'; // Подключаем стили
+import './UserRegistration.scss'; // Подключаем стили
 
 const b = block('fuel-page'); // Создаем блок для стилей
 
-export const FuelPage: React.FC = () => {
+export const UserRegistrationPage: React.FC = () => {
   const { add } = useToaster();
 
   // Хук для получения текущего объема топлива

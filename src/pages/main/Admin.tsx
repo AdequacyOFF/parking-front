@@ -9,7 +9,7 @@ import {
   withTableActions,
 } from "@gravity-ui/uikit";
 
-import "./Main.scss";
+import "./Admin.scss";
 import { Layout } from "../../components/layout";
 
 import { useLocationParams } from "../../hooks/use-params";
@@ -73,7 +73,7 @@ const columns = [
 
 const TAG_ROWS_PER_PAGE = 10;
 
-export const MainPage: React.FC = () => {
+export const AdminPage: React.FC = () => {
   const { add } = useToaster();
   const { addToNavigateBar } = useBindNavigator<any>();
   const { params } = useLocationParams<any>(window.location.search);
