@@ -1,20 +1,20 @@
 import { rootApi } from '..'; 
-import { LoginPostParams } from './types/request';
+import { LoginAdminPostParams,LoginUserPostParams } from './types/request';
 import { PostLoginResponse } from './types/response';
 
 // Экспортируем authApi и useLoginMutation
 export const authApi = rootApi.injectEndpoints({
   endpoints: (build) => ({
-    adminLogin: build.mutation<PostLoginResponse, LoginPostParams>({
-      query: (credentials: LoginPostParams) => ({
+    adminLogin: build.mutation<PostLoginResponse, LoginAdminPostParams>({
+      query: (credentials: LoginAdminPostParams) => ({
         url: '/api/admin/login',
         method: 'POST',
         data: credentials
       }),
     }),
-    userLogin: build.mutation<PostLoginResponse, LoginPostParams>({
-      query: (credentials: LoginPostParams) => ({
-        url: '/api/admin/login',
+    userLogin: build.mutation<PostLoginResponse, LoginUserPostParams>({
+      query: (credentials: LoginUserPostParams) => ({
+        url: '/api/users/login',
         method: 'POST',
         data: credentials
       }),

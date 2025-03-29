@@ -300,13 +300,10 @@ export const AdminPage: React.FC = () => {
             <div className={b("setup-form")}>
               <TextInput
                 type="text"
-                label=" "
                 value={parkingSpacesCount}
                 onChange={handleInputChange}
                 size = "xl"
                 className={b("input")}
-                controlProps={{ style: { color: "#ffffff" } }}
-                style={{ color: "#ffffff" }}
               />
               <PrimaryButton
                 view="action"

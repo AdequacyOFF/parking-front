@@ -1,7 +1,6 @@
 import React from "react";
 import block from "bem-cn-lite";
 import { Button, Icon, Text, TextInput } from "@gravity-ui/uikit";
-
 import "./Auth.scss";
 import { Eye, EyeSlash, Person } from "@gravity-ui/icons";
 import { Lock } from "@gravity-ui/icons";
@@ -10,25 +9,12 @@ import { NavigationPath } from "../../utils/constant/navigation";
 import { PrimaryButton } from "../../components/button";
 import { InputLabel } from "../../components/input-label";
 import { Stack } from "@mui/material";
-
-import { useAdminLoginMutation,  useUserLoginMutation} from "../../store/api/auth";
+import { useAdminLoginMutation, useUserLoginMutation } from "../../store/api/auth";
 
 const b = block("auth-page");
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-
-  const [toAdminLogin, {
-    data: loginData, 
-    ...loginRequestInfo
-  }] = useAdminLoginMutation();
-
-  const [toUserLogin, {
-    data: login, 
-    ...requestInfo
-  }] = useUserLoginMutation();
-
-
   const [showPassword, setShowPassword] = React.useState(false);
   const [username, setUserName] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -36,24 +22,15 @@ export const AuthPage: React.FC = () => {
   const [isPhone, setIsPhone] = React.useState(false);
   const [isLoginButtonClicked, setIsLoginButtonClicked] = React.useState(false);
 
-
-  const formatPhone = (value: string) => {
-    const numbers = value.replace(/\D/g, '');
-    let formatted = numbers;
-    
-    if (numbers.length > 1) {
-      formatted = `+7${numbers.substring(1,11)}`;
-    }
-    
-    return formatted.trim();
-  };
+  const [userLogin] = useUserLoginMutation();
+  const [adminLogin] = useAdminLoginMutation();
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const isPhoneInput = /^[\d+]/.test(value);
     
     setIsPhone(isPhoneInput);
-    setUserName(isPhoneInput ? formatPhone(value) : value);
+    setUserName(value);
     setError("");
   };
 
@@ -74,63 +51,42 @@ export const AuthPage: React.FC = () => {
       setError("Введите корректный номер телефона");
       return;
     }
+    setError("");
+
+    setIsLoginButtonClicked(true);
+    setError("");
 
     try {
+      // Определяем, какой endpoint использовать
+      const isAdminAttempt = username.includes('admin') || username.includes('@admin');
+      const successPath = isAdminAttempt ? NavigationPath.AdminPage : NavigationPath.UserAccount;
 
-      const loginValue = isPhone ? username.replace(/\D/g, '') : username;
-      
-      await toAdminLogin({
-        username: loginValue,
-        password
-      }).unwrap();
-      
-
-      navigate(NavigationPath.AdminPage);
-    } catch (err) {
-      setError("Неверные учетные данные");
-    }
-  };
-
-  const handleOnClickLoginButton = () => {
-    if (username && password) {
-      toAdminLogin({ username, password });
-      setIsLoginButtonClicked(true);
-      setError("");
-      // localStorage.setItem('accessToken', "1");
-      // navigate(NavigationPath.PromotionsPage);
-    } else {
-      setError("Заполните логин и пароль")
-    }
-  };
-
-
-  React.useEffect(() => {
-    if (loginRequestInfo.isSuccess) {
-      localStorage.setItem('accessToken', loginData?.result.token!);
-      localStorage.setItem('refreshToken', loginData?.result.refreshToken!);
-      navigate(NavigationPath.AdminPage);
-      setIsLoginButtonClicked(false);
-    }
-  }, [loginRequestInfo.isSuccess, loginData?.result.token, loginData?.result.refreshToken, navigate]);
-
-  React.useEffect(() => {
-    if (loginRequestInfo.isError) {
-      toUserLogin({ username, password });
-      if (requestInfo.isSuccess) {
-        localStorage.setItem('accessToken', login?.result.token!);
-        localStorage.setItem('refreshToken', login?.result.refreshToken!);
-        navigate(NavigationPath.UserAccount);
-        setIsLoginButtonClicked(false);
+      if(isAdminAttempt){
+        const response = await adminLogin({
+          username: isPhone ? username.replace(/\D/g, '') : username,
+          password
+        }).unwrap();
+  
+        localStorage.setItem('accessToken', response.result.token);
+        localStorage.setItem('refreshToken', response.result.refreshToken);
+        navigate(successPath);
       }
       else{
-        setIsLoginButtonClicked(false);
-      if (loginRequestInfo.error && 'error' in loginRequestInfo.error){
-        setError(loginRequestInfo.error.error.message)
+        const response = await userLogin({
+          phoneNumber: isPhone? username.replace(/\D/g, '') : username,
+          password
+        }).unwrap();
+        localStorage.setItem('accessToken', response.result.token);
+        localStorage.setItem('refreshToken', response.result.refreshToken);
+        navigate(successPath);
       }
+      
+    } catch (err) {
+      setError("Неверные учетные данные");
+    } finally {
+      setIsLoginButtonClicked(false);
     }
-      }
-    }, [loginRequestInfo.isError, loginRequestInfo.error,loginRequestInfo.isSuccess, loginData?.result.token, loginData?.result.refreshToken, navigate]);
-
+  };
 
   return (
     <div className={b()}>
@@ -146,7 +102,7 @@ export const AuthPage: React.FC = () => {
               value={username}
               onChange={handleLoginChange}
               type={isPhone ? "tel" : "text"}
-              placeholder={isPhone ? "+7 (999) 123-45-67" : "Ваш логин"}
+              placeholder={isPhone ? "Ваш телефон" : "Ваш логин"}
               className={b("input")}
               size="xl"
               startContent={<Person />}
@@ -190,7 +146,6 @@ export const AuthPage: React.FC = () => {
           type="submit"
           size="xl"
           loading={isLoginButtonClicked}
-          onClick={handleOnClickLoginButton}
           disabled={!username || !password}
           style={{ marginTop: 20 }}
         >
