@@ -41,9 +41,9 @@ export const AppBar: React.FC = () => {
       </Stack>
       <Tabs activeTab={tab} size="l">
         <Tabs.Item
-          id={NavigationPath.PromotionsPage}
+          id={NavigationPath.AdminPage}
           title="Акции"
-          onClick={() => handleOnTabClick(NavigationPath.PromotionsPage)}
+          onClick={() => handleOnTabClick(NavigationPath.AdminPage)}
         />
         {/* <Tabs.Item 
           id={NavigationPath.QRPage}
@@ -56,9 +56,9 @@ export const AppBar: React.FC = () => {
           onClick={handleOnTabClick} 
         /> */}
         <Tabs.Item
-          id={NavigationPath.FuelPage}
+          id={NavigationPath.UserRegistrationPage}
           title="Топливо"
-          onClick={() => handleOnTabClick(NavigationPath.FuelPage)}
+          onClick={() => handleOnTabClick(NavigationPath.UserRegistrationPage)}
         />
       </Tabs>
       <div className={b('user-setting')}>

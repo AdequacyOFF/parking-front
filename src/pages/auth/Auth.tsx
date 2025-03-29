@@ -17,128 +17,133 @@ const b = block("auth-page");
 
 export const AuthPage: React.FC = () => {
   const navigate = useNavigate();
-  const [toLogin, { data: loginData, ...loginRequestInfo }] =
-    useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
 
   const [showPassword, setShowPassword] = React.useState(false);
-  const toggleShowPassword = () => setShowPassword(!showPassword);
-
-  const [error, setError] = React.useState("");
-  const [username, setUsername] = React.useState("");
+  const [loginInput, setLoginInput] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [isLoginButtonClicked, setIsLoginButtonClicked] = React.useState(false);
+  const [error, setError] = React.useState("");
+  const [isPhone, setIsPhone] = React.useState(false);
 
-  const handleOnChangeUsername = (e: any) => setUsername(e.target.value);
-  const handleOnChangePassword = (e: any) => setPassword(e.target.value);
 
-  const handleOnClickLoginButton = () => {
-    if (username && password) {
-      toLogin({ username, password });
-      setIsLoginButtonClicked(true);
-      setError("");
-      // localStorage.setItem('accessToken', "1");
-      // navigate(NavigationPath.PromotionsPage);
-    } else {
-      setError("Заполните логин и пароль");
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    let formatted = numbers;
+    
+    if (numbers.length > 1) {
+      formatted = `+7 (${numbers.substring(1, 4)}) ${numbers.substring(4, 7)}-${numbers.substring(7, 9)}-${numbers.substring(9, 11)}`;
     }
+    
+    return formatted.trim();
   };
 
-  const handleOnPressEnter = (e: any) => {
-    if (e.charCode === 13) handleOnClickLoginButton();
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const isPhoneInput = /^[\d+]/.test(value);
+    
+    setIsPhone(isPhoneInput);
+    setLoginInput(isPhoneInput ? formatPhone(value) : value);
+    setError("");
   };
 
-  React.useEffect(() => {
-    if (loginRequestInfo.isSuccess) {
-      localStorage.setItem("accessToken", loginData?.result.token!);
-      localStorage.setItem("refreshToken", loginData?.result.refreshToken!);
-      navigate(NavigationPath.PromotionsPage);
-      setIsLoginButtonClicked(false);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!loginInput.trim()) {
+      setError("Введите логин или телефон");
+      return;
     }
-  }, [
-    loginRequestInfo.isSuccess,
-    loginData?.result.token,
-    loginData?.result.refreshToken,
-    navigate,
-  ]);
 
-  React.useEffect(() => {
-    if (loginRequestInfo.isError) {
-      setIsLoginButtonClicked(false);
-      if (loginRequestInfo.error && "error" in loginRequestInfo.error) {
-        setError(loginRequestInfo.error.error.message);
-      }
+    if (!password.trim()) {
+      setError("Введите пароль");
+      return;
     }
-  }, [loginRequestInfo.isError, loginRequestInfo.error]);
+
+    if (isPhone && !/^\+?\d{10,15}$/.test(loginInput.replace(/\D/g, ''))) {
+      setError("Введите корректный номер телефона");
+      return;
+    }
+
+    try {
+
+      const loginValue = isPhone ? loginInput.replace(/\D/g, '') : loginInput;
+      
+      await login({
+        login: loginValue,
+        password
+      }).unwrap();
+      
+
+      navigate(NavigationPath.AdminPage);
+    } catch (err) {
+      setError("Неверные учетные данные");
+    }
+  };
 
   return (
     <div className={b()}>
-      <div className={b("form")}>
+      <form className={b("form")} onSubmit={handleSubmit}>
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-          {/* <Box className={b('logo-wrapper')}>
-            <img src={logo} alt='logo' />
-          </Box> */}
-          <span className={b("title")}>AВТОРИЗАЦИЯ</span>
+          <span className={b("title")}>АВТОРИЗАЦИЯ</span>
         </Stack>
 
         <Stack spacing={2}>
-          <InputLabel labelText="Логин">
+          <InputLabel labelText={isPhone ? "Номер телефона" : "Логин"}>
             <TextInput
               style={{ color: "#ffffff" }}
-              controlProps={{
-                style: { color: "#ffffff" }, 
-              }}
-              value={username}
-              onChange={handleOnChangeUsername}
-              onKeyPress={handleOnPressEnter}
+              value={loginInput}
+              onChange={handleLoginChange}
+              type={isPhone ? "tel" : "text"}
+              placeholder={isPhone ? "+7 (999) 123-45-67" : "Ваш логин"}
               className={b("input")}
               size="xl"
-              placeholder="Введите логин"
               startContent={<Person />}
+              controlProps={{ style: { color: "#ffffff" } }}
             />
           </InputLabel>
 
           <InputLabel labelText="Пароль">
             <TextInput
               value={password}
-              onChange={handleOnChangePassword}
-              onKeyPress={handleOnPressEnter}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setError("");
+              }}
               type={showPassword ? "text" : "password"}
+              placeholder="Введите пароль"
               className={b("input")}
               size="xl"
-              placeholder="Введите пароль"
               startContent={<Lock />}
               endContent={
-                <Button view="flat" onClick={toggleShowPassword}>
+                <Button 
+                  view="flat" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  title={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                >
                   <Icon data={showPassword ? EyeSlash : Eye} size={20} />
                 </Button>
               }
+              controlProps={{ style: { color: "#ffffff" } }}
             />
           </InputLabel>
         </Stack>
 
-        {error ? (
-          <Text
-            variant="body-1"
-            color="danger"
-            style={{
-              padding: "4px 0",
-            }}
-          >
+        {error && (
+          <Text color="danger" style={{ padding: "4px 0" }}>
             {error}
           </Text>
-        ) : null}
+        )}
 
         <PrimaryButton
+          type="submit"
           size="xl"
-          loading={isLoginButtonClicked}
-          onClick={handleOnClickLoginButton}
-          style={{
-            marginTop: 20,
-          }}
+          loading={isLoading}
+          disabled={!loginInput || !password}
+          style={{ marginTop: 20 }}
         >
-          Войти
+          ВОЙТИ
         </PrimaryButton>
-      </div>
+      </form>
     </div>
   );
 };
