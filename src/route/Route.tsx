@@ -51,6 +51,7 @@ export const Routing = () => {
         <Route path={NavigationPath. Pass} element={<Pass />} />
       </Route>
 
+
       {/* <Route path={NavigationPath.Any} element={<PrivateRoute />}>
         <Route path={NavigationPath.Any} element={<Navigate to={NavigationPath.PromotionsPage} />} />
       </Route> */}

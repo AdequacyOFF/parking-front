@@ -12,6 +12,36 @@ import {
   RegisterUserResponse,
 } from './types/response';
 
+
+interface Place {
+  placeId: number;
+  ownerId: string;
+  firstName: string;
+  lastName: string;
+  patronymic?: string;
+  createdAt: string;
+}
+
+interface GetPlacesResponse {
+  errorCode: number;
+  message: string;
+  result: {
+    allPlaces: Place[];
+    total: number;
+  };
+}
+
+interface CreatePlaceParams {
+  ownerId: string;
+  firstName: string;
+  lastName: string;
+  patronymic?: string;
+}
+
+interface UpdatePlaceParams extends CreatePlaceParams {
+  placeId: number;
+}
+
 // Типы для запросов и ответов, связанных с топливом
 interface GetFuelVolumeResponse {
   errorCode: number;
@@ -19,6 +49,32 @@ interface GetFuelVolumeResponse {
   result: {
     minFuelVolume: number;
   };
+}
+
+interface CreateParkingResponse {
+  errorCode: number;
+  message: string;
+  result?: any;
+}
+
+
+// Добавьте это в начало файла, где определены другие типы
+ export interface UserData {
+  id: string;
+  phoneNumber: string;
+  status: string;
+  firstName: string;
+  lastName: string;
+  patronymic: string;
+  parkingSpace?: string;
+  cars?: CarData[]; // Добавляем массив автомобилей
+}
+
+ export interface CarData {
+  id?: string;
+  mark: string;
+  number: string;
+  region: string;
 }
 
 interface UpdateFuelVolumeParams {
@@ -135,6 +191,68 @@ const adminApi = rootApi.injectEndpoints({
       },
       invalidatesTags: ['FuelVolume'],
     }),
+    getUser: build.query<{
+      errorCode: number;
+      message: string;
+      result: UserData & { cars?: CarData[] };
+    }, void>({
+      query: () => ({
+        url: '/api/users/me',
+      }),
+    }),
+
+    // Обновление данных пользователя
+    updateUser: build.mutation<void, {
+      firstName: string;
+      lastName: string;
+      patronymic: string;
+      phoneNumber: string;
+    }>({
+      query: (data) => ({
+        method: 'PUT',
+        url: '/api/users/me',
+        body: data,
+      }),
+    }),
+
+    createParking: build.mutation<CreateParkingResponse, { count: number }>({
+      query: (params) => ({
+        method: 'POST',
+        url: '/api/place/createParking',
+        data: { count: params.count },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
+    getPlaces: build.query<GetPlacesResponse, { limit: number; offset: number }>({
+      query: (params) => ({
+        url: `/api/place/getParking?limit=${params.limit}&offset=${params.offset}`,
+      }),
+    }),
+
+    createPlace: build.mutation<void, CreatePlaceParams>({
+      query: (params) => ({
+        method: 'POST',
+        url: '/api/places',
+        body: params,
+      }),
+    }),
+
+    updatePlace: build.mutation<void, UpdatePlaceParams>({
+      query: (params) => ({
+        method: 'PUT',
+        url: `/api/places/${params.placeId}`,
+        body: params,
+      }),
+    }),
+
+    deletePlace: build.mutation<void, number>({
+      query: (id) => ({
+        method: 'DELETE',
+        url: `/api/places/${id}`,
+      }),
+    }),
     
     registerUser: build.mutation<RegisterUserResponse, RegisterUserParams>({
       query: (params) => ({
@@ -153,6 +271,7 @@ const adminApi = rootApi.injectEndpoints({
     }),
   }),
   
+  
   overrideExisting: false,
 });
 
@@ -165,4 +284,11 @@ export const {
   useLazyGetFuelVolumeQuery,
   useUpdateFuelVolumeMutation,
   useRegisterUserMutation,
+  useLazyGetUserQuery, 
+  useUpdateUserMutation,
+  useCreateParkingMutation,
+  useCreatePlaceMutation,
+  useDeletePlaceMutation,
+  useLazyGetPlacesQuery,
+  useUpdatePlaceMutation,
 } = adminApi;

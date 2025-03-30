@@ -15,126 +15,95 @@ import { Layout } from "../../components/layout";
 
 import { useLocationParams } from "../../hooks/use-params";
 import { useBindNavigator } from "../../hooks/use-navigator";
-import { CircleXmarkFill, Pencil, Plus, TrashBin } from "@gravity-ui/icons";
+import { Pencil, Plus, TrashBin } from "@gravity-ui/icons";
 import { Box, Stack, TablePagination } from "@mui/material";
 import {
-  useCreatePromotionMutation,
-  useDeletePromotionMutation,
-  useLazyGetPromotionsQuery,
-  useUpdatePromotionMutation,
+  useCreatePlaceMutation,
+  useDeletePlaceMutation,
+  useLazyGetPlacesQuery,
+  useUpdatePlaceMutation,
+  useCreateParkingMutation,
 } from "../../store/api/admin";
 import { TablePaginationActions } from "../../components/pagination";
 import { formatDate } from "../../utils/date";
-import {
-  CreatePromotionPostParams,
-  UpdatePromotionPostParams,
-} from "../../store/api/admin/types/request";
-import { CreateOrUpdateFormModal } from "./ui/create-promotion-modal";
-import { ImgWrapper } from "../../components/img-wrapper";
+import { CreateOrUpdateFormModal } from "./ui/create-place-modal";
+import type { TableActionConfig } from '@gravity-ui/uikit';
 
 const b = block("main-page");
 
-const PromotionTable = withTableActions(Table);
+const PlacesTable = withTableActions(Table);
 
 const columns = [
   {
-    id: "id",
-    name: "ID",
-    template: (item: any, _: number) => item.id.split("-")[0],
+    id: "placeId",
+    name: "ID места",
+    template: (item: any) => item.placeId,
   },
   {
-    id: "title",
-    name: "Название",
-    template: (item: any, _: number) => item.title || undefined,
+    id: "owner",
+    name: "Владелец",
+    template: (item: any) => `${item.lastName} ${item.firstName} ${item.patronymic || ''}`,
   },
   {
-    id: "photo",
-    name: "Фото",
-    template: (item: any, _: number) => (
-      <ImgWrapper src={item.photo} height={40} width={40} />
-    ),
+    id: "ownerId",
+    name: "ID владельца",
+    template: (item: any) => item.ownerId,
   },
   {
-    id: "shortDescription",
-    name: "Описание",
-    className: "description",
-    template: (item: any, _: number) => item.shortDescription || undefined,
-  },
-  {
-    id: "startDate",
+    id: "createdAt",
     name: "Дата создания",
-    template: (item: any, _: number) => formatDate(item.startDate),
-  },
-  {
-    id: "endDate",
-    name: "Дата окончания",
-    template: (item: any, _: number) => formatDate(item.endDate),
+    template: (item: any) => formatDate(item.createdAt),
   },
 ];
 
-const TAG_ROWS_PER_PAGE = 10;
+const ROWS_PER_PAGE = 10;
 
 export const AdminPage: React.FC = () => {
   const { add } = useToaster();
   const { addToNavigateBar } = useBindNavigator<any>();
   const { params } = useLocationParams<any>(window.location.search);
 
-  const [getPromotions, { data, ...getPromotionsRequestInfo }] =
-    useLazyGetPromotionsQuery();
+  const [getPlaces, { data, ...getPlacesRequestInfo }] = useLazyGetPlacesQuery();
+  const [updatePlace] = useUpdatePlaceMutation();
+  const [createPlace] = useCreatePlaceMutation();
+  const [deletePlace] = useDeletePlaceMutation();
+  const [createParking] = useCreateParkingMutation();
 
-  const [updatePromotion, { ...updatePromotionRequestInfo }] =
-    useUpdatePromotionMutation();
-
-  const [createPromotions, { ...createPromotionsRequestInfo }] =
-    useCreatePromotionMutation();
-
-  const [deletePromotions] = useDeletePromotionMutation();
-
-  const [page, setPage] = React.useState(
-    params.page ? parseInt(params.page) : 1
-  );
+  const [page, setPage] = React.useState(params.page ? parseInt(params.page) : 1);
   const [rowsPerPage, setRowsPerPage] = React.useState(
-    params.rows ? parseInt(params.rows) : TAG_ROWS_PER_PAGE
+    params.rows ? parseInt(params.rows) : ROWS_PER_PAGE
   );
 
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
-  const [openCreatePromotionModal, setOpenCreatePromotionModal] =
-    React.useState(false);
-  const closeCreatePromotionModal = React.useCallback(() => {
-    setOpenCreatePromotionModal(false);
+  const [openCreatePlaceModal, setOpenCreatePlaceModal] = React.useState(false);
+  
+  const closeCreatePlaceModal = React.useCallback(() => {
+    setOpenCreatePlaceModal(false);
   }, []);
-  const handleCreatePromotionClick = () => {
-    setOpenCreatePromotionModal(true);
-  };
-  const handleAddCreatePromotionClick = () => {
-    setSelectedId(null);
-    handleCreatePromotionClick();
-  };
-  const handleOnAddPromotionFormModalSubmit = (
-    params: CreatePromotionPostParams
-  ) => {
-    createPromotions(params);
-  };
-  const handleOnUpdatePromotionFormModalSubmit = (
-    params: UpdatePromotionPostParams
-  ) => {
-    updatePromotion(params);
+
+  const handleCreatePlaceClick = () => {
+    setOpenCreatePlaceModal(true);
   };
 
-  const getRowActions = () => {
+  const handleAddCreatePlaceClick = () => {
+    setSelectedId(null);
+    handleCreatePlaceClick();
+  };
+
+  const getRowActions = (item: any): TableActionConfig<any>[] => {
     return [
       {
         text: "Изменить",
-        handler: (item: any) => {
-          setSelectedId(item.id);
-          handleCreatePromotionClick();
+        handler: () => {
+          setSelectedId(item.placeId);
+          handleCreatePlaceClick();
         },
         icon: <Icon data={Pencil} size={16} />,
       },
       {
         text: "Удалить",
-        handler: (item: any) => deletePromotions(item.id),
-        theme: "danger",
+        handler: () => deletePlace(item.placeId),
+        theme: "danger" as const,
         icon: <Icon data={TrashBin} size={16} />,
       },
     ];
@@ -150,7 +119,7 @@ export const AdminPage: React.FC = () => {
       page: newPage + 1,
     });
 
-    getPromotions({
+    getPlaces({
       ...params,
       limit: rowsPerPage,
       offset: newPage * rowsPerPage,
@@ -169,7 +138,7 @@ export const AdminPage: React.FC = () => {
       rows: limit,
     });
 
-    getPromotions({
+    getPlaces({
       ...params,
       limit: limit,
       offset: 0,
@@ -178,7 +147,7 @@ export const AdminPage: React.FC = () => {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      await getPromotions({
+      await getPlaces({
         ...params,
         limit: rowsPerPage,
         offset: (page - 1) * rowsPerPage,
@@ -192,93 +161,39 @@ export const AdminPage: React.FC = () => {
       rows: rowsPerPage,
       page: page,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.rows, params.page, rowsPerPage, page]);
-
-  React.useEffect(() => {
-    if (getPromotionsRequestInfo.isError) {
-      add({
-        name: "generate-tag-success",
-        autoHiding: 3000,
-        isClosable: true,
-        title: `Ошибка в запросе`,
-        renderIcon: () => (
-          <Icon className="success-red" data={CircleXmarkFill} size={18} />
-        ),
-        // @ts-ignore
-        content: getPromotionsRequestInfo.error.error.message,
-      });
-    }
-  }, [getPromotionsRequestInfo.isError, getPromotionsRequestInfo.error, add]);
-
-  React.useEffect(() => {
-    if (updatePromotionRequestInfo.isError) {
-      add({
-        name: "generate-tag-success",
-        autoHiding: 3000,
-        isClosable: true,
-        title: `Ошибка в запросе`,
-        renderIcon: () => (
-          <Icon className="success-red" data={CircleXmarkFill} size={18} />
-        ),
-        // @ts-ignore
-        content: updatePromotionRequestInfo.error.error.message,
-      });
-    }
-  }, [
-    updatePromotionRequestInfo.isError,
-    updatePromotionRequestInfo.error,
-    add,
-  ]);
-
-  React.useEffect(() => {
-    if (updatePromotionRequestInfo.isSuccess) {
-      closeCreatePromotionModal();
-    }
-  }, [updatePromotionRequestInfo.isSuccess, closeCreatePromotionModal]);
-
-  React.useEffect(() => {
-    if (createPromotionsRequestInfo.isError) {
-      add({
-        name: "generate-tag-success",
-        autoHiding: 3000,
-        isClosable: true,
-        title: `Ошибка в запросе`,
-        renderIcon: () => (
-          <Icon className="success-red" data={CircleXmarkFill} size={18} />
-        ),
-        // @ts-ignore
-        content: createPromotionsRequestInfo.error.error.message,
-      });
-    }
-  }, [
-    createPromotionsRequestInfo.isError,
-    createPromotionsRequestInfo.error,
-    add,
-  ]);
-
-  React.useEffect(() => {
-    if (createPromotionsRequestInfo.isSuccess) {
-      closeCreatePromotionModal();
-    }
-  }, [createPromotionsRequestInfo.isSuccess, closeCreatePromotionModal]);
-
-  const totalItems = data?.result.total || 0;
-  const promotions = data?.result.promotions || [];
 
   const [parkingSpacesCount, setParkingSpacesCount] = React.useState<string>("");
   const [isInitialSetupDone, setIsInitialSetupDone] = React.useState<boolean>(false);
 
-  const handleCreateParkingSpaces = () => {
+  const handleCreateParkingSpaces = async () => {
     const count = parseInt(parkingSpacesCount);
     if (count > 0) {
-      // Здесь должна быть логика создания парковочных мест
-      setIsInitialSetupDone(true);
-      add({
-        name: "parking-spaces-created",
-        title: `Создано ${count} парковочных мест`,
-        autoHiding: 3000,
-      });
+      try {
+        const response = await createParking({ count }).unwrap();
+        
+        if (response.errorCode === 0) {
+          setIsInitialSetupDone(true);
+          add({
+            name: "parking-spaces-created",
+            title: "Успех",
+            content: `Создано ${count} парковочных мест`,
+            autoHiding: 3000,
+            theme: "success",
+          });
+          getPlaces({ limit: rowsPerPage, offset: 0 });
+        } else {
+          throw new Error(response.message || "Ошибка сервера");
+        }
+      } catch (error) {
+        add({
+          name: "parking-spaces-error",
+          title: "Ошибка",
+          content: error instanceof Error ? error.message : "Не удалось создать парковочные места",
+          autoHiding: 3000,
+          theme: "danger",
+        });
+      }
     }
   };
 
@@ -289,7 +204,7 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  if (!isInitialSetupDone && (!data || data.result.total === 0)) {
+  if (!isInitialSetupDone && (!data || data.result.allPlaces.length === 0)) {
     return (
       <Layout>
         <div className={b()}>
@@ -302,7 +217,8 @@ export const AdminPage: React.FC = () => {
                 type="text"
                 value={parkingSpacesCount}
                 onChange={handleInputChange}
-                size = "xl"
+                size="xl"
+                placeholder="Количество парковочных мест"
                 className={b("input")}
               />
               <PrimaryButton
@@ -322,25 +238,27 @@ export const AdminPage: React.FC = () => {
     );
   }
 
+  const totalItems = data?.result.total || 0;
+  const places = data?.result.allPlaces || [];
+
   return (
     <Layout>
       <div className={b()}>
         <div className={b("table-container")}>
           <div className={b("table-wrapper")}>
-            {getPromotionsRequestInfo.isFetching ? (
+            {getPlacesRequestInfo.isFetching ? (
               <Box className={b("loading")}>
                 <Spin />
               </Box>
             ) : null}
 
-            <PromotionTable
-              data={promotions}
+            <PlacesTable
+              data={places}
               columns={columns}
-              // @ts-ignore
               getRowActions={getRowActions}
-              className={b("tag-table")}
+              className={b("places-table")}
               width="max"
-              emptyMessage="Данных нет"
+              emptyMessage="Парковочные места не найдены"
             />
 
             <Stack
@@ -348,16 +266,15 @@ export const AdminPage: React.FC = () => {
               direction="row"
               justifyContent="space-between"
               alignItems="center"
-              sx={{
-                pl: 3,
-              }}
+              sx={{ pl: 3 }}
+              style={{ borderColor: 'white' }}
             >
               <Button
                 view="outlined-danger"
                 size="xl"
-                onClick={handleAddCreatePromotionClick}
+                onClick={handleAddCreatePlaceClick}
               >
-                Добавить
+                Добавить место
                 <Icon data={Plus} size={18} />
               </Button>
 
@@ -377,9 +294,7 @@ export const AdminPage: React.FC = () => {
                   `${from}-${to} из ${count}`
                 }
                 sx={{
-                  "& .MuiToolbar-root": {
-                    p: 4,
-                  },
+                  "& .MuiToolbar-root": { p: 4 },
                   "& *": {
                     fontFamily: "inherit",
                     color: "white",
@@ -391,15 +306,15 @@ export const AdminPage: React.FC = () => {
         </div>
       </div>
 
-      {openCreatePromotionModal ? (
+      {openCreatePlaceModal && (
         <CreateOrUpdateFormModal
-          open={openCreatePromotionModal}
-          promotionId={selectedId}
-          onClose={closeCreatePromotionModal}
-          onCreate={handleOnAddPromotionFormModalSubmit}
-          onUpdate={handleOnUpdatePromotionFormModalSubmit}
+          open={openCreatePlaceModal}
+          placeId={selectedId}
+          onClose={closeCreatePlaceModal}
+          onCreate={createPlace}
+          onUpdate={updatePlace}
         />
-      ) : null}
+      )}
     </Layout>
   );
 };

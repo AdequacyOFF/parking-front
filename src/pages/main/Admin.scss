@@ -8,11 +8,16 @@ $block: '.main-page';
   height: calc(100% - 66px);
   background-color: #232323;
 
+  &__setup-form{
+    text-align: center;
+  }
+  
+
   &__input{
-    color: #ffffff;
+    color: black;
     border-radius: 12px;
-    border-color: white;
     width: 232px;
+    background-color: #ffffff;
   }
 
   &__input.g-text-input_size_xl .g-text-input__additional-content_placement_start {
@@ -23,14 +28,14 @@ $block: '.main-page';
 
   &__input {
     .g-text-input__control {
-      color: #ffffff !important;
+      color: black !important;
       border-width: 3px !important;
       border-radius: 12px;
-      border-color: aqua;
     }
   }
   &__setup-button{
     margin-left: 1vw;
+    background-color: red;
   }
 
   &__acts-nav {

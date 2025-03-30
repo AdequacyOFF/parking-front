@@ -63,7 +63,7 @@ export const AuthPage: React.FC = () => {
 
       if(isAdminAttempt){
         const response = await adminLogin({
-          username: isPhone ? username.replace(/\D/g, '') : username,
+          username: username,
           password
         }).unwrap();
   
@@ -73,7 +73,7 @@ export const AuthPage: React.FC = () => {
       }
       else{
         const response = await userLogin({
-          phoneNumber: isPhone? username.replace(/\D/g, '') : username,
+          phoneNumber: username ,
           password
         }).unwrap();
         localStorage.setItem('accessToken', response.result.token);

@@ -32,3 +32,7 @@ export interface RegisterUserResponse {
     patronymic: string;
   };
 }
+
+export interface GetMeByIdRespons {
+  
+}

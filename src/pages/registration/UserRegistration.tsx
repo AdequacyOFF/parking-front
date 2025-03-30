@@ -7,7 +7,7 @@ import { useRegisterUserMutation } from '../../store/api/admin';
 
 import './UserRegistration.scss';
 
-const b = block('fuel-page');
+const b = block('UR-page');
 
 
 export const UserRegistrationPage: React.FC = () => {
@@ -122,7 +122,7 @@ export const UserRegistrationPage: React.FC = () => {
               />
 
               <Button
-                view="action"
+                view="outlined-danger"
                 size="l"
                 onClick={handleSubmit}
                 loading={isLoading}

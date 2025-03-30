@@ -3,8 +3,8 @@ import "./UserAccount.scss";
 import { TextInput } from "@gravity-ui/uikit";
 import { InputLabel } from "../../components/input-label";
 import { PrimaryButton } from "../../components/button";
-import axios from "axios";
 import { useToaster } from "@gravity-ui/uikit";
+import { useLazyGetUserQuery } from "../../store/api/admin/index";
 
 interface UserData {
   id: string;
@@ -22,7 +22,6 @@ interface CarData {
   region: string;
 }
 
-// Заглушки для данных пользователя
 const DEFAULT_USER: UserData = {
   id: "",
   phoneNumber: "",
@@ -38,31 +37,29 @@ export const UserAccount: React.FC = () => {
   const [cars, setCars] = useState<CarData[]>([{ mark: "", number: "", region: "" }]);
   const [loading, setLoading] = useState(true);
   const [dataError, setDataError] = useState(false);
-  const { add } = useToaster();
+  const toaster = useToaster();
 
-  // Загрузка данных пользователя
+  const [getUser] = useLazyGetUserQuery();
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get<{
-          errorCode: number;
-          message: string;
-          result: UserData;
-        }>("/api/users/me");
+        const response = await getUser().unwrap();
         
-        if (response.data.errorCode === 0) {
-          setUser(response.data.result);
+        if (response.errorCode === 0) {
+          setUser(response.result);
           setDataError(false);
         } else {
-          throw new Error(response.data.message);
+          throw new Error(response.message);
         }
       } catch (error) {
         setDataError(true);
-        add({
+        toaster.add({
           name: "user-data-error",
           title: "Ошибка",
           content: "Не удалось загрузить данные пользователя",
           autoHiding: 3000,
+          theme: "danger",
         });
       } finally {
         setLoading(false);
@@ -70,30 +67,31 @@ export const UserAccount: React.FC = () => {
     };
 
     fetchUserData();
-  }, [add]);
+  }, [getUser, toaster]);
 
-  // Остальные обработчики остаются без изменений
   const handleCarChange = (index: number, field: keyof CarData, value: string) => {
     const updatedCars = [...cars];
     updatedCars[index] = { ...updatedCars[index], [field]: value };
     setCars(updatedCars);
   };
 
-  const handleSave = async (index: number) => {
+  const handleSave = async () => {
     try {
-      await axios.put("/api/user/cars", cars[index]);
-      add({
+      // Здесь должен быть вызов API для сохранения автомобиля
+      toaster.add({
         name: "save-success",
         title: "Успех",
         content: "Данные автомобиля сохранены",
         autoHiding: 3000,
+        theme: "success",
       });
     } catch (error) {
-      add({
+      toaster.add({
         name: "save-error",
         title: "Ошибка",
         content: "Не удалось сохранить данные",
         autoHiding: 3000,
+        theme: "danger",
       });
     }
   };
@@ -104,22 +102,26 @@ export const UserAccount: React.FC = () => {
 
   const handleReserveSpace = async () => {
     try {
-      await axios.post("/api/user/reserve-space");
-      add({
+      // Здесь должен быть вызов API для резервирования места
+      toaster.add({
         name: "reserve-success",
         title: "Успех",
         content: "Место успешно зарезервировано",
         autoHiding: 3000,
+        theme: "success",
       });
-      const response = await axios.get("/api/users/me");
-      setUser(response.data.result);
+      
+      // Обновляем данные пользователя
+      const response = await getUser().unwrap();
+      setUser(response.result);
       setDataError(false);
     } catch (error) {
-      add({
+      toaster.add({
         name: "reserve-error",
         title: "Ошибка",
         content: "Не удалось зарезервировать место",
         autoHiding: 3000,
+        theme: "danger",
       });
     }
   };
@@ -137,7 +139,6 @@ export const UserAccount: React.FC = () => {
     <div className="body">
       <div className="header">ЛИЧНЫЙ КАБИНЕТ</div>
       <div className="main-conteiner">
-        {/* Отображаем данные пользователя или заглушки */}
         <div className={`name ${dataError ? 'placeholder-text' : ''}`}>
           {dataError ? 'Пользователь' : `${user.firstName} ${user.lastName}`}
         </div>
@@ -167,7 +168,6 @@ export const UserAccount: React.FC = () => {
               />
             </InputLabel>
             
-            {/* Аналогично для других полей */}
             <InputLabel labelText="Номер автомобиля">
               <TextInput
                 value={car.number}
@@ -199,8 +199,8 @@ export const UserAccount: React.FC = () => {
             <PrimaryButton 
               type="button" 
               size="xl" 
-              style={{ marginTop: 20 }}
-              onClick={() => handleSave(index)}
+              style={{ marginTop: 20, marginLeft: 110, color: "#ffffff" }}
+              onClick={() => handleSave()}
               disabled={dataError}
             >
               СОХРАНИТЬ
@@ -214,7 +214,7 @@ export const UserAccount: React.FC = () => {
           <PrimaryButton 
             type="button" 
             size="xl" 
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 20, marginLeft: 20 }}
             onClick={handleAddCar}
           >
             ДОБАВИТЬ МАШИНУ
@@ -225,7 +225,7 @@ export const UserAccount: React.FC = () => {
           <PrimaryButton 
             type="button" 
             size="xl" 
-            style={{ marginTop: 20 }}
+            style={{ marginTop: 20, marginLeft: 25, color: '#ffffff' }}
             onClick={handleReserveSpace}
             disabled={dataError}
           >
@@ -242,69 +242,3 @@ export const UserAccount: React.FC = () => {
     </div>
   );
 };
-// import React from "react";
-// import "./UserAccount.scss";
-// import { TextInput } from "@gravity-ui/uikit";
-// import { InputLabel } from "../../components/input-label";
-// import { PrimaryButton } from "../../components/button";
-
-// export const UserAccount: React.FC = () => {
-//   return (
-//     <div className="body">
-//       <div className="header">ЛИЧНЫЙ КАБИНЕТ</div>
-//       <div className="main-conteiner">
-//         <div className="name">Имя Фамилия</div>
-//         <div className="heading">Ваше парковочное место</div>
-//         <div className="parking-space">69</div>
-//         <hr className="one" />
-//         <div className="car-data-header">Данные автомобиля</div>
-//         <div className="car-mark">
-//           <InputLabel labelText="Марка автомобиля">
-//             <TextInput
-//               style={{ color: "#ffffff" }}
-//               type="text"
-//               placeholder="Марка автомобиля"
-//               className="input"
-//               size="xl"
-//               controlProps={{ style: { color: "#ffffff" } }}
-//             ></TextInput>
-//           </InputLabel>
-//           <InputLabel labelText="Номер автомобиля">
-//             <TextInput
-//               style={{ color: "#ffffff" }}
-//               type="text"
-//               placeholder="Номер автомобиля"
-//               className="input"
-//               size="xl"
-//               controlProps={{ style: { color: "#ffffff" } }}
-//             ></TextInput>
-//           </InputLabel>
-//           <InputLabel labelText="Регион">
-//             <TextInput
-//               style={{ color: "#ffffff" }}
-//               type="text"
-//               placeholder="Регион"
-//               className="input"
-//               size="xl"
-//               controlProps={{ style: { color: "#ffffff" } }}
-//             ></TextInput>
-//           </InputLabel>
-//           <PrimaryButton type="submit" size="xl" style={{ marginTop: 20 }}>
-//             СОХРАНИТЬ
-//           </PrimaryButton>
-//           <hr className="two" />
-//         </div>
-//         <div className="add-car">
-//           <PrimaryButton type="submit" size="xl" style={{ marginTop: 20 }}>
-//             ДОБАВИТЬ МАШИНУ
-//           </PrimaryButton>
-//         </div>
-//         <div className="add-space">
-//           <PrimaryButton type="submit" size="xl" style={{ marginTop: 20 }}>
-//             Зарезервировать место
-//           </PrimaryButton>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };

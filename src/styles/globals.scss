@@ -23,6 +23,25 @@ body,
     inset-block-start: 20px;
     inset-inline-end: 10px;
   }
+  /* В вашем основном SCSS */
+  .g-toast {
+    color: black !important; /* Цвет всего текста в тосте */
+    
+    &__title, &__content {
+      color: inherit !important; /* Наследуем цвет от родителя */
+    }
+    
+    /* Если нужно разные цвета для разных типов */
+    &[data-theme="success"] {
+      --g-toast-content-color: #e0ffe0;
+    }
+    
+    &[data-theme="danger"] {
+      --g-toast-content-color: #ffdddd;
+    }
+  
+  
+}
 
   & .g-toast__title {
     font-size: 15px;
@@ -115,3 +134,4 @@ body,
   line-height: 20px;
   color: #ffffff80;
 }
+
