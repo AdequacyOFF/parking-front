@@ -12,7 +12,6 @@ import {
 import { PrimaryButton } from "../../components/button";
 import "./Admin.scss";
 import { Layout } from "../../components/layout";
-
 import { useLocationParams } from "../../hooks/use-params";
 import { useBindNavigator } from "../../hooks/use-navigator";
 import { Pencil, Plus, TrashBin } from "@gravity-ui/icons";
@@ -240,6 +239,9 @@ export const AdminPage: React.FC = () => {
 
   const totalItems = data?.result.total || 0;
   const places = data?.result.allPlaces || [];
+  
+  // Сортируем места по placeId в порядке возрастания
+  const sortedPlaces = [...places].sort((a, b) => a.placeId - b.placeId);
 
   return (
     <Layout>
@@ -253,7 +255,7 @@ export const AdminPage: React.FC = () => {
             ) : null}
 
             <PlacesTable
-              data={places}
+              data={sortedPlaces}
               columns={columns}
               getRowActions={getRowActions}
               className={b("places-table")}

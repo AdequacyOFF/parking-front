@@ -1,24 +1,24 @@
 import React from 'react';
 import block from 'bem-cn-lite';
-import { Button, TextInput, useToaster, Spin } from '@gravity-ui/uikit';
+import { Button, TextInput, useToaster, Spin, Icon } from '@gravity-ui/uikit';
+import { Plus } from '@gravity-ui/icons';
 import { Layout } from '../../components/layout';
 import { Box, Stack } from '@mui/material';
-import { useRegisterUserMutation } from '../../store/api/admin';
-
+import { useRegisterUserMutation, useAssignPlaceMutation } from '../../store/api/admin';
 import './UserRegistration.scss';
 
 const b = block('UR-page');
 
-
 export const UserRegistrationPage: React.FC = () => {
   const { add } = useToaster();
-  const [registerUser, { isLoading }] = useRegisterUserMutation();
+  const [registerUser, { isLoading: isRegistering }] = useRegisterUserMutation();
+  const [assignPlace, { isLoading: isAssigning }] = useAssignPlaceMutation();
 
   const [formData, setFormData] = React.useState({
     lastName: '',
     firstName: '',
     patronymic: '',
-    phoneNumber: ''
+    phoneNumber: '' // Добавляем обратно phoneNumber, так как он обязателен в API
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,27 +31,35 @@ export const UserRegistrationPage: React.FC = () => {
       add({
         name: 'registration-error',
         title: 'Ошибка',
-        content: 'Заполните все обязательные поля',
+        content: 'Заполните обязательные поля (Фамилия, Имя, Телефон)',
         autoHiding: 3000,
+        theme: 'danger',
       });
       return;
     }
 
     try {
-      // Вызываем мутацию и получаем ответ
-      const result = await registerUser({
+      // 1. Регистрируем пользователя
+      await registerUser({
         phoneNumber: formData.phoneNumber,
         firstName: formData.firstName,
         lastName: formData.lastName,
         patronymic: formData.patronymic
       }).unwrap();
 
-      // Правильно типизированный доступ к данным ответа
+      // 2. Назначаем место (сервер сам выбирает свободное место)
+      await assignPlace({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        patronymic: formData.patronymic
+      }).unwrap();
+
       add({
         name: 'registration-success',
         title: 'Успешно',
-        content: `Пользователь ${result.result.firstName} зарегистрирован`,
+        content: `Пользователь ${formData.firstName} ${formData.lastName} зарегистрирован. Место назначено автоматически.`,
         autoHiding: 3000,
+        theme: 'success',
       });
 
       // Сброс формы
@@ -71,64 +79,75 @@ export const UserRegistrationPage: React.FC = () => {
         title: 'Ошибка',
         content: errorContent,
         autoHiding: 3000,
+        theme: 'danger',
       });
     }
   };
+
+  const isLoading = isRegistering || isAssigning;
 
   return (
     <Layout>
       <div className={b()}>
         <div className={b('container')}>
           <div className={b('wrapper')}>
-            <Stack spacing={2} direction="column">
+            <h2 className={b('title')}>Регистрация пользователя и назначение места</h2>
+            
+            <Stack spacing={3} direction="column" sx={{ width: '100%', maxWidth: '500px' }}>
               <TextInput
                 name="lastName"
+                label="Фамилия*"
                 value={formData.lastName}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                placeholder="Фамилия"
+                placeholder="Введите фамилию"
                 size="l"
-                
+
               />
 
               <TextInput
                 name="firstName"
+                label="Имя*"
                 value={formData.firstName}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                placeholder="Имя"
+                placeholder="Введите имя"
                 size="l"
-                
+
               />
 
               <TextInput
                 name="patronymic"
+                label="Отчество"
                 value={formData.patronymic}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                placeholder="Отчество"
+                placeholder="Введите отчество (необязательно)"
                 size="l"
               />
 
               <TextInput
                 name="phoneNumber"
+                label="Телефон*"
                 value={formData.phoneNumber}
                 onChange={handleInputChange}
                 disabled={isLoading}
-                placeholder="Телефон"
+                placeholder="Введите номер телефона"
                 size="l"
                 type="tel"
-                
+
               />
 
               <Button
-                view="outlined-danger"
-                size="l"
+                view="action"
+                size="xl"
                 onClick={handleSubmit}
                 loading={isLoading}
                 disabled={isLoading}
+                pin="round-round"
               >
-                Зарегистрировать
+                <Icon data={Plus} size={18} />
+                Зарегистрировать и назначить место
               </Button>
             </Stack>
 

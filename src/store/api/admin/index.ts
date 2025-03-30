@@ -57,6 +57,24 @@ interface CreateParkingResponse {
   result?: any;
 }
 
+interface AssignPlaceParams {
+  firstName: string;
+  lastName: string;
+  patronymic?: string;
+}
+
+interface AssignPlaceResponse {
+  errorCode: number;
+  message: string;
+  result: {
+    placeId: number;
+    ownerId: string;
+    firstName: string;
+    lastName: string;
+    patronymic?: string;
+  };
+}
+
 
 // Добавьте это в начало файла, где определены другие типы
  export interface UserData {
@@ -226,15 +244,27 @@ const adminApi = rootApi.injectEndpoints({
       }),
     }),
     getPlaces: build.query<GetPlacesResponse, { limit: number; offset: number }>({
+      query: () => ({
+        url: `/api/place/getParking`,
+      }),
+    }),
+
+    assignPlace: build.mutation<AssignPlaceResponse, AssignPlaceParams>({
       query: (params) => ({
-        url: `/api/place/getParking?limit=${params.limit}&offset=${params.offset}`,
+        method: 'POST',
+        url: '/api/place/assign',
+        data: {
+          firstName: params.firstName,
+          lastName: params.lastName,
+          patronymic: params.patronymic,
+        },
       }),
     }),
 
     createPlace: build.mutation<void, CreatePlaceParams>({
       query: (params) => ({
         method: 'POST',
-        url: '/api/places',
+        url: '/api/place/assign',
         body: params,
       }),
     }),
@@ -291,4 +321,5 @@ export const {
   useDeletePlaceMutation,
   useLazyGetPlacesQuery,
   useUpdatePlaceMutation,
+  useAssignPlaceMutation
 } = adminApi;
